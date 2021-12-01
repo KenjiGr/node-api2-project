@@ -41,21 +41,22 @@ router.post('/', async (req, res) => {
         res.status(500).json({ message: "There was an error while saving the post to the database" });
 }})
 // 4 PUT /api/posts/:id Updates the post with the specified id using data from the request body and **returns the modified document**, not the original
-router.put('/:id', async (req, res) => {
-    try{
-        const updated = await Post.update(req.params.id, req.body);
-            if(!req.body.contents || !req.body.title){
-                res.status(400).json({ message: "Please provide title and contents for the post" });
-            }else if(!updated){
-                res.status(404).json({ message: "The post with the specified ID does not exist" });
-            }else{    
-                const updatedPost = await Post.findById(req.params.id)
-                res.status(200).json(updatedPost);
-            }
-    }catch (err){
-            res.status(500).json({ message: "The post information could not be modified" });
-    }}
-)
+router.post("/", (req, res) => {
+    const post = req.body;
+    if (!post.title || !post.contents) {
+      res
+        .status(400)
+        .send({ message: "Please provide title and contents for the post" });
+    } else {
+      Post.insert(post).then(() => {
+          res.status(201).send(post)
+        }).catch(() => {
+          res.status(500).send({
+            message: "There was an error while saving the post to the database",
+          });
+        });
+    }
+  });
 // 5 DELETE /api/posts/:id  Removes the post with the specified id and returns the **deleted post object** 
 router.delete('/:id', async (req, res) => {
     try{
