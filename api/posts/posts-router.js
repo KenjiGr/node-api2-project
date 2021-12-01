@@ -16,11 +16,11 @@ router.get('/', async (req, res) => {
 //2 GET/api/posts/:id  Returns **the post object with the specified id**                       
 router.get('/:id', async (req,res) => {
     try{
-        const posts = await Post.findById(req.params.id);
-            if(!posts){
+        const post = await Post.findById(req.params.id);
+            if(!post){
                 res.status(404).json({ message: "The post with the specified ID does not exist" });
             }else{
-                res.json(posts);
+                res.json(post);
             }
     }catch (err){
         res.status(500).json({ message: "The post information could not be retrieved" })
@@ -32,7 +32,8 @@ router.post('/', async (req, res) => {
         if(!req.body.contents || !req.body.title){
             res.status(400).json({ message: "Please provide title and contents for the post" });
         }else{
-            const newPost = await Post.insert(req.body);
+            const postID = await Post.insert(req.body);
+            const newPost = await Post.findById(postID.id);
             res.status(201).json(newPost);
         }
         }
@@ -43,12 +44,14 @@ router.post('/', async (req, res) => {
 router.put('/:id', async (req, res) => {
     try{
         const updated = await Post.update(req.params.id, req.body);
+        console.log(updated)
             if(!updated){
                 res.status(404).json({ message: "The post with the specified ID does not exist" });
             }else if(!req.body.contents || !req.body.title){
                 res.status(400).json({ message: "Please provide title and contents for the post" });
             }else{    
-                res.status(200).json(updated);
+                const updatedPost = await Post.findById(req.params.id)
+                res.status(200).json(updatedPost);
             }
     }catch (err){
         res.status(500).json({ message: "The post information could not be modified" });
@@ -72,7 +75,7 @@ router.delete('/:id', async (req, res) => {
 //6 GET /api/posts/:id/comments Returns an **array of all the comment objects** associated with the post with the specified id      
 router.get('/:id/comments', async (req, res) => {
     try{
-        const comments = Post.findCommentById(req.params.id)
+        const comments = await Post.findCommentById(req.params.id)
             if(!comments){
                 res.status(404).json({ message: "The post with the specified ID does not exist" });
             }else{
