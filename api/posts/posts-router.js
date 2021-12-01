@@ -44,17 +44,18 @@ router.post('/', async (req, res) => {
 router.put('/:id', async (req, res) => {
     try{
         const updated = await Post.update(req.params.id, req.body);
-        console.log(updated)
             if(!updated){
                 res.status(404).json({ message: "The post with the specified ID does not exist" });
-            }else if(!req.body.contents || !req.body.title){
-                res.status(400).json({ message: "Please provide title and contents for the post" });
             }else{    
                 const updatedPost = await Post.findById(req.params.id)
                 res.status(200).json(updatedPost);
             }
     }catch (err){
-        res.status(500).json({ message: "The post information could not be modified" });
+        if(!req.body.contents || !req.body.title){
+            res.status(400).json({ message: "Please provide title and contents for the post" });
+        }else{
+            res.status(500).json({ message: "The post information could not be modified" });
+        }
     }}
 )
 // 5 DELETE /api/posts/:id  Removes the post with the specified id and returns the **deleted post object** 
@@ -76,10 +77,10 @@ router.delete('/:id', async (req, res) => {
 router.get('/:id/comments', async (req, res) => {
     try{
         const comments = await Post.findCommentById(req.params.id)
-            if(!comments){
+            if(!comments.length){
                 res.status(404).json({ message: "The post with the specified ID does not exist" });
             }else{
-                res.json(comments);
+                res.status(200).json(comments);
             }
     }catch (err){
         res.status(500).json({ message: "The comments information could not be retrieved" });
