@@ -28,6 +28,19 @@ router.get('/:id', async (req,res) => {
     }
 })                                             
 //3 POST /api/posts Creates a post using the information sent inside the request body and returns **the newly created post object**                 |
+router.post('/', async (req, res) => {
+    try{
+        Post.insert(req.body).then(post => {
+            if(!post){
+                res.status(400).json({ message: "Please provide title and contents for the post" });
+            }else{
+                res.status(201).json(post);
+            }
+        })
+    }catch{
+        res.status(500).json({ message: "There was an error while saving the post to the database" });
+    }
+})
 // 4 PUT /api/posts/:id Updates the post with the specified id using data from the request body and **returns the modified document**, not the original
 // 5 DELETE /api/posts/:id  Removes the post with the specified id and returns the **deleted post object**                                                  |
 //6 GET /api/posts/:id/comments Returns an **array of all the comment objects** associated with the post with the specified id      
